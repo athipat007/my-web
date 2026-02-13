@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>จัดสเปกคอมพิวเตอร์ | ININE-CPU</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --main: #8a2be2; --dark: #000; --gray: #f4f4f4; --red: #ef4444; }
+        body { margin: 0; font-family: 'Kanit', sans-serif; background: var(--gray); color: #333; }
+
+        /* แถบประกาศสีม่วงไล่ไปดำ */
+        .marquee { 
+            background: linear-gradient(90deg, #8a2be2 0%, #000000 100%); 
+            color: white; 
+            padding: 10px 0; 
+            overflow: hidden; 
+            height: 35px; 
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* อนิเมชั่นวิ่งจากขวาไปซ้ายแล้ววนกลับมาใหม่ */
+        .marquee-txt { 
+            display: inline-block; 
+            white-space: nowrap; 
+            padding-left: 100%; /* เริ่มจากนอกขอบขวา */
+            animation: move-rtl 20s linear infinite; 
+            font-weight: 600; 
+            font-size: 16px;
+        }
+
+        @keyframes move-rtl { 
+            0% { transform: translateX(0); } 
+            100% { transform: translateX(-100%); } 
+        }
+
+        nav { background: var(--dark); padding: 15px 50px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--main); }
+        .logo { font-size: 24px; font-weight: bold; text-decoration: none; color: white; }
+        .logo span { color: var(--main); }
+        
+        #order-alert { display: none; background: #fee2e2; color: var(--red); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--red); font-weight: bold; text-align: center; }
+        
+        .container { display: grid; grid-template-columns: 380px 1fr; max-width: 1400px; margin: 30px auto; gap: 30px; padding: 0 20px; }
+        .sidebar { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); position: sticky; top: 20px; height: fit-content; text-align: center; }
+        .build-item { display: flex; align-items: center; padding: 12px; border: 1px solid #eee; border-radius: 12px; margin-bottom: 8px; cursor: pointer; text-align: left; transition: 0.2s; }
+        .build-item.active { border-color: var(--main); background: #f3e8ff; }
+        .build-item img { width: 50px; height: 50px; margin-right: 15px; object-fit: contain; background: #fff; border-radius: 5px; }
+        
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+        .p-card { background: white; border-radius: 20px; padding: 20px; text-align: center; border: 1px solid #eee; display: flex; flex-direction: column; align-items: center; transition: 0.3s; }
+        .p-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .p-card img { width: 100%; height: 180px; object-fit: contain; margin-bottom: 15px; }
+        
+        .btn { padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-family: 'Kanit'; transition: 0.3s; }
+        .btn-select { background: var(--main); color: white; margin-top: auto; width: 100%; }
+        .btn-clear { background: #fee2e2; color: var(--red); width: 100%; margin-bottom: 20px; font-size: 14px; }
+        .btn-checkout { background: linear-gradient(45deg, #8a2be2, #4b0082); color: white; width: 100%; margin-top: 15px; font-size: 18px; box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4); }
+
+        /* Overlay ยืนยันการลบ */
+        #confirm-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 1000; justify-content: center; align-items: center; }
+        .confirm-box { background: white; padding: 30px; border-radius: 24px; text-align: center; max-width: 320px; width: 90%; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body>
+
+    <div id="confirm-overlay">
+        <div class="confirm-box">
+            <h3 style="color:var(--red)">ล้างสเปกทั้งหมด?</h3>
+            <p>รายการที่เลือกไว้จะหายไปทั้งหมด</p>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn" style="background:#eee; flex:1" onclick="document.getElementById('confirm-overlay').style.display='none'">ยกเลิก</button>
+                <button class="btn" style="background:var(--red); color:white; flex:1" onclick="confirmClear()">ลบเลย</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="marquee">
+        <div class="marquee-txt" id="mq">⚡ ยินดีต้อนรับสู่ ININE-CPU เลือกอุปกรณ์ที่ใช่ในสเปกที่ชอบ ⚡</div>
+    </div>
+
+    <nav>
+        <a href="index.html" class="logo">ININE-<span>CPU</span></a>
+        <a href="index.html" style="color:white; text-decoration:none; font-size:14px; border:1px solid #444; padding:5px 15px; border-radius:8px;">🏠 กลับหน้าหลัก</a>
+    </nav>
+
+    <div class="container">
+        <aside class="sidebar">
+            <div id="order-alert">⚠️ กรุณาเลือกสินค้าก่อนครับ</div>
+            <h1 style="color:var(--main); margin:0;" id="total">฿ 0</h1>
+            <button class="btn btn-clear" onclick="document.getElementById('confirm-overlay').style.display='flex'">🗑️ ล้างสเปกทั้งหมด</button>
+            <div id="build-list"></div>
+            <button class="btn btn-checkout" onclick="checkout()">💳 ชำระเงิน / สั่งซื้อ</button>
+        </aside>
+
+        <main>
+            <h2 id="cat-title" style="margin-top:0; border-left: 5px solid var(--main); padding-left: 15px;">เลือกอุปกรณ์</h2>
+            <div id="product-grid" class="product-grid"></div>
+        </main>
+    </div>
+
+    <script>
+        let db = JSON.parse(localStorage.getItem('pc_db')) || [];
+        let myBuild = JSON.parse(localStorage.getItem('my_build')) || {};
+        let currentCat = 'cpu';
+
+        function render() {
+            const cats = [{id:'cpu',n:'CPU'},{id:'mb',n:'MB'},{id:'vga',n:'VGA'},{id:'ram',n:'RAM'},{id:'ssd',n:'SSD'},{id:'psu',n:'PSU'},{id:'case',n:'CASE'}];
+            document.getElementById('build-list').innerHTML = cats.map(c => `
+                <div class="build-item ${currentCat === c.id ? 'active' : ''}" onclick="setCat('${c.id}')">
+                    <img src="${myBuild[c.id] ? myBuild[c.id].img : 'https://via.placeholder.com/50?text=NONE'}">
+                    <div style="flex:1; font-size:12px;"><b style="color:var(--main)">${c.n}</b><br>${myBuild[c.id] ? myBuild[c.id].name : '<span style="color:#ccc">ยังไม่เลือก</span>'}</div>
+                    <div style="font-weight:bold;">${myBuild[c.id] ? '฿'+myBuild[c.id].price.toLocaleString() : '---'}</div>
+                </div>`).join('');
+
+            const total = Object.values(myBuild).reduce((s, i) => s + i.price, 0);
+            document.getElementById('total').innerText = '฿ ' + total.toLocaleString();
+
+            const filtered = db.filter(p => (p.category || p.cat) === currentCat);
+            document.getElementById('cat-title').innerText = "เลือกอุปกรณ์: " + currentCat.toUpperCase();
+            document.getElementById('product-grid').innerHTML = filtered.map(p => `
+                <div class="p-card">
+                    <img src="${p.img}" onerror="this.src='https://via.placeholder.com/180?text=No+Image'">
+                    <h4>${p.name}</h4>
+                    <div style="color:var(--main); font-size:18px; font-weight:bold; margin-bottom:10px;">฿${p.price.toLocaleString()}</div>
+                    <button class="btn btn-select" onclick="selectItem(${p.id})">เลือกอุปกรณ์นี้</button>
+                </div>`).join('');
+            
+            const savedMQ = localStorage.getItem('mq_txt');
+            if(savedMQ) document.getElementById('mq').innerText = savedMQ;
+        }
+
+        function selectItem(id) {
+            const item = db.find(x => x.id === id);
+            if(item) { 
+                myBuild[item.category || item.cat] = item; 
+                localStorage.setItem('my_build', JSON.stringify(myBuild)); 
+                render(); 
+                document.getElementById('order-alert').style.display='none';
+            }
+        }
+
+        function setCat(c) { currentCat = c; render(); }
+
+        function confirmClear() {
+            myBuild = {};
+            localStorage.removeItem('my_build');
+            render();
+            document.getElementById('confirm-overlay').style.display = 'none';
+        }
+
+        function checkout() { 
+            if(Object.keys(myBuild).length === 0) {
+                const alertBox = document.getElementById('order-alert');
+                alertBox.style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            } 
+            window.location.href = 'checkout.html'; 
+        }
+
+        window.onload = render;
+    </script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ชำระเงิน | ININE-CPU</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --main: #8a2be2; }
+        body { background: #f4f4f4; font-family: 'Kanit', sans-serif; padding: 20px; }
+        .container { max-width: 600px; margin: 40px auto; background: white; padding: 30px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; font-size: 14px; }
+        .total { font-size: 28px; color: var(--main); font-weight: bold; text-align: right; margin: 20px 0; }
+        .pay-option { border: 2px solid #eee; padding: 15px; border-radius: 15px; cursor: pointer; margin-bottom: 10px; transition: 0.3s; font-weight: bold; text-align: center; }
+        .pay-option:hover { border-color: var(--main); background: #f3e8ff; }
+        #bank-info { display: none; background: #f8faff; padding: 20px; border-radius: 15px; border: 1px dashed var(--main); margin-top: 10px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+            <a href="order.html" style="text-decoration:none; color:var(--main); font-weight:bold;">⬅ แก้ไขสเปก</a>
+            <a href="index.html" style="text-decoration:none; color:#666; font-size:14px;">🏠 กลับหน้าหลัก</a>
+        </div>
+        <h2>📄 สรุปใบสั่งซื้อ</h2>
+        <div id="summary"></div>
+        <div class="total" id="final-total"></div>
+        <div class="pay-option" onclick="document.getElementById('bank-info').style.display='block'">🏦 โอนผ่านบัญชีธนาคาร</div>
+        <div id="bank-info">
+            <p>ธนาคาร: <strong>กรุงไทย</strong><br>
+            ชื่อบัญชี: <strong>นายอธิภัทร อุ้มชู</strong><br>
+            <span style="font-size:24px; color:var(--main);">665-0-17650-8</span></p>
+        </div>
+        <div class="pay-option" onclick="alert('พร้อมเพย์กำลังมาเร็วๆ นี้!')">📲 พร้อมเพย์ (Soon)</div>
+        <button onclick="alert('ขอบคุณที่สั่งซื้อ!')" style="width:100%; padding:15px; background:var(--main); color:white; border:none; border-radius:12px; font-weight:bold; cursor:pointer; margin-top:20px;">ยืนยันการโอนเงิน</button>
+    </div>
+    <script>
+        const build = JSON.parse(localStorage.getItem('my_build')) || {};
+        const items = Object.values(build);
+        document.getElementById('summary').innerHTML = items.map(i => `<div class="item"><span>${i.name}</span><span>฿${i.price.toLocaleString()}</span></div>`).join('');
+        const total = items.reduce((s, i) => s + i.price, 0);
+        document.getElementById('final-total').innerText = `฿${total.toLocaleString()}`;
+    </script>
+</body>
+</html>

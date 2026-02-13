@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ยินดีต้อนรับสู่ ININE-CPU</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --main: #8a2be2; }
+        body, html { margin: 0; padding: 0; height: 100%; font-family: 'Kanit', sans-serif; overflow: hidden; }
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=1920&q=80');
+            height: 100vh; background-size: cover; background-position: center;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center;
+        }
+        .logo-big { font-size: 80px; font-weight: bold; margin-bottom: 10px; }
+        .logo-big span { color: var(--main); }
+        .btn-start { 
+            background: var(--main); color: white; padding: 20px 60px; border-radius: 50px; 
+            text-decoration: none; font-size: 24px; font-weight: bold; transition: 0.3s;
+            box-shadow: 0 0 20px var(--main);
+        }
+        .btn-start:hover { transform: scale(1.05); box-shadow: 0 0 40px var(--main); }
+        .admin-gate { position: fixed; bottom: 20px; right: 20px; color: rgba(255,255,255,0.3); text-decoration: none; font-size: 12px; padding: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="logo-big">ININE-<span>CPU</span></div>
+        <p style="font-size: 20px; opacity: 0.8; margin-bottom: 30px;">สเปกคอมพิวเตอร์ระดับพรีเมียมที่คุณเลือกได้เอง</p>
+        <a href="order.html" class="btn-start">เริ่มจัดสเปกคอมพิวเตอร์</a>
+    </div>
+    <a href="admin.html" class="admin-gate">🔒 แผงควบคุมแอดมิน</a>
+</body>
+</html>
