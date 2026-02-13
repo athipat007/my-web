@@ -2,167 +2,154 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>ระบบหลังบ้าน | ININE-CPU</title>
+    <title>Admin Login | ININE-CPU</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { --main: #8a2be2; --red: #ff4757; --green: #2ecc71; --dark: #0f172a; }
         body { background: var(--dark); color: white; font-family: 'Kanit', sans-serif; margin: 0; }
         
-        /* Modal ยืนยันการลบ */
-        #confirm-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 2000; justify-content: center; align-items: center; }
+        /* Modal ยืนยันการลบสินค้า */
+        #confirm-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; }
         .confirm-box { background: #1e293b; padding: 30px; border-radius: 20px; text-align: center; max-width: 320px; border: 1px solid rgba(255,255,255,0.1); }
 
-        #login-container { height: 100vh; display: flex; justify-content: center; align-items: center; }
-        #login-box { background: #1e293b; padding: 40px; border-radius: 24px; width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .inline-alert { display: none; padding: 10px; border-radius: 10px; margin-bottom: 15px; font-size: 14px; font-weight: bold; }
-        .alert-error { background: rgba(255, 71, 87, 0.2); color: var(--red); border: 1px solid var(--red); }
-        .alert-success { background: rgba(46, 204, 113, 0.2); color: var(--green); border: 1px solid var(--green); }
+        /* หน้า Login */
+        #login-container { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        #login-box { background: #1e293b; padding: 40px; border-radius: 24px; width: 100%; max-width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; }
+        
+        /* แจ้งเตือนรหัสผิด */
+        #login-err { display: none; background: rgba(255, 71, 87, 0.2); color: var(--red); border: 1px solid var(--red); padding: 10px; border-radius: 10px; margin-bottom: 15px; font-weight: bold; }
 
         header { background: #000; padding: 15px 50px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--main); }
+        .logo { font-size: 24px; font-weight: bold; text-decoration: none; color: white; }
+        .logo span { color: var(--main); }
+        
         .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; display: grid; grid-template-columns: 350px 1fr; gap: 30px; }
         .card { background: rgba(255,255,255,0.05); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
         
         input, select, textarea { background: #000; border: 1px solid #444; color: white; padding: 12px; border-radius: 10px; width: 100%; margin-bottom: 15px; box-sizing: border-box; font-family: 'Kanit'; }
-        .btn { padding: 12px 20px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; font-family: 'Kanit'; }
+        .btn { padding: 12px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; font-family: 'Kanit'; transition: 0.3s; }
         .btn-main { background: var(--main); color: white; }
-        .btn-red { background: var(--red); color: white; }
-        .btn-gray { background: #334155; color: white; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
     <div id="confirm-overlay">
         <div class="confirm-box">
-            <h3 style="margin-top:0;">ลบสินค้านี้?</h3>
-            <button class="btn btn-red" id="confirm-del-btn">ยืนยันการลบ</button>
-            <button class="btn btn-gray" style="margin-top:10px" onclick="document.getElementById('confirm-overlay').style.display='none'">ยกเลิก</button>
-        </div>
-    </div>
-
-    <div id="l-sec">
-        <div id="login-container">
-            <div id="login-box">
-                <h2 style="color:var(--main);">ADMIN LOGIN</h2>
-                <div id="login-err" class="inline-alert alert-error">❌ รหัสผ่านไม่ถูกต้อง!</div>
-                <input type="password" id="pw" placeholder="รหัสผ่าน (1234)">
-                <button class="btn btn-main" onclick="login()">เข้าสู่ระบบ</button>
+            <h3>ลบสินค้าชิ้นนี้?</h3>
+            <p style="color:#94a3b8;">ข้อมูลจะถูกลบออกจากคลังถาวร</p>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="btn" style="background:#475569; color:white;" onclick="closeModal()">ยกเลิก</button>
+                <button class="btn" id="confirm-del-btn" style="background:var(--red); color:white;">ยืนยันลบ</button>
             </div>
         </div>
     </div>
 
-    <div id="p-sec" style="display:none;">
+    <div id="login-sec">
+        <div id="login-container">
+            <div id="login-box">
+                <h2 style="color:var(--main); margin-bottom:20px;">ADMIN LOGIN</h2>
+                
+                <div id="login-err">❌ รหัสผ่านไม่ถูกต้อง!</div>
+
+                <input type="password" id="pw-input" placeholder="กรอกรหัสผ่าน (1234)">
+                <button class="btn btn-main" onclick="checkLogin()">เข้าสู่ระบบ</button>
+                <div style="margin-top:20px;">
+                    <a href="index.html" style="color:#94a3b8; text-decoration:none; font-size:14px;">🏠 กลับหน้าหลัก</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-sec" style="display:none;">
         <header>
-            <h2 style="margin:0;">ININE-CPU <span style="color:var(--main)">ADMIN</span></h2>
-            <button onclick="location.reload()" style="background:var(--red); color:white; border:none; padding:5px 15px; border-radius:8px; cursor:pointer;">Logout</button>
+            <a href="index.html" class="logo">ININE-<span>CPU</span></a>
+            <div style="display:flex; gap:20px; align-items:center;">
+                <a href="index.html" style="color:#ccc; text-decoration:none;">🏠 หน้าแรก</a>
+                <button onclick="location.reload()" style="background:var(--red); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer;">Logout</button>
+            </div>
         </header>
+
         <div class="container">
             <div class="card">
-                <div id="status-msg" class="inline-alert alert-success"></div>
-                <h3>➕ เพิ่มสินค้า</h3>
+                <h3>📢 ประกาศหน้าเว็บ</h3>
+                <textarea id="mq-input" rows="2" placeholder="ใส่ข้อความประกาศ..."></textarea>
+                <button class="btn btn-main" onclick="saveMQ()" style="margin-bottom:30px;">บันทึกประกาศ</button>
+
+                <h3>➕ เพิ่มสินค้าใหม่</h3>
                 <select id="n-cat">
-                    <option value="cpu">CPU</option><option value="mb">MB</option>
-                    <option value="vga">VGA</option>
+                    <option value="cpu">CPU</option><option value="mb">Mainboard</option>
+                    <option value="vga">VGA</option><option value="ram">RAM</option>
+                    <option value="ssd">SSD</option><option value="psu">PSU</option>
+                    <option value="case">Case</option>
                 </select>
                 <input type="text" id="n-name" placeholder="ชื่อสินค้า">
                 <input type="number" id="n-price" placeholder="ราคา">
-                <input type="text" id="n-img" placeholder="ลิงก์รูป">
-                <button class="btn btn-main" onclick="add()">บันทึกสินค้า</button>
+                <input type="text" id="n-img" placeholder="ลิงก์รูปภาพ">
+                <button class="btn btn-main" style="background:var(--green);" onclick="addItem()">เพิ่มเข้าคลัง</button>
             </div>
+
             <div class="card">
-                <h3>📦 รายการสินค้า (<span id="count">0</span>)</h3>
-                <div id="list"></div>
+                <h3>📦 สินค้าในระบบ (<span id="count">0</span>)</h3>
+                <div id="list-render"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // ข้อมูลตัวอย่างสำหรับเริ่มต้น
-        const defaultItems = [
-        // CPU (5)
-    { id: 101, category: 'cpu', name: 'Intel Core i5-13400F', price: 7200, img: 'https://www.jib.co.th/img_master/product/original/2022122610011856972_1.jpg', desc: '10 Cores (6P+4E) / 16 Threads | Max Turbo 4.6GHz' },
-    { id: 102, category: 'cpu', name: 'AMD Ryzen 5 7500F', price: 5990, img: 'https://www.jib.co.th/img_master/product/original/20240801150411_69543_66_1.jpg', desc: '6 Cores / 12 Threads | Base 3.7GHz / Boost 5.0GHz' },
-    { id: 103, category: 'cpu', name: 'Intel Core i7-14700K', price: 16500, img: 'https://www.jib.co.th/img_master/product/original/2023101615255663038_1.png', desc: '20 Cores (8P+12E) / 28 Threads | Max Turbo 5.6GHz' },
-    { id: 104, category: 'cpu', name: 'AMD Ryzen 7 7800X3D', price: 15500, img: 'https://ihcupload.s3.ap-southeast-1.amazonaws.com/img/product/products85319_800.jpg', desc: '8 Cores / 16 Threads | 3D V-Cache เทคโนโลยีที่แรงที่สุดสำหรับการเล่นเกม' },
-    { id: 105, category: 'cpu', name: 'Intel Core i9-14900K', price: 22900, img: 'https://www.jib.co.th/img_master/product/original/2023101615262063040_1.png', desc: '24 Cores (8P+16E) / 32 Threads | Max Turbo 6.0GHz' },
+        let db = JSON.parse(localStorage.getItem('pc_db')) || [];
+        let delIndex = null;
 
-    // MB (5)
-    { id: 201, category: 'mb', name: 'ASUS PRIME B760M-A', price: 4990, img: 'https://www.jib.co.th/img_master/product/original/2025052816324057137_1.jpg', desc: 'Intel B760 Chipset | LGA 1700 | DDR5 Support' },
-    { id: 202, category: 'mb', name: 'MSI MAG B650 TOMAHAWK', price: 7500, img: 'https://storage-asset.msi.com/global/picture/image/feature/mb/B650/MAG-B650-TOMAHAWK-WIFI/mag-b650-tomahawk-wifi-block01.png', desc: 'AMD B650 Chipset | AM5 | Wi-Fi 6E' },
-    { id: 203, category: 'mb', name: 'GIGABYTE Z790 AORUS ELITE', price: 9200, img: 'https://www.gigabyte.com/FileUpload/Global/KeyFeature/2203/innergigabyteimages/box.png', desc: 'Intel Z790 Chipset | LGA 1700 | PCIe 5.0 Support' },
-    { id: 204, category: 'mb', name: 'ASROCK B550M PRO4', price: 3100, img: 'https://www.asrock.com/mb/photo/B550M%20Pro4(M1).png', desc: 'AMD B550 Chipset | AM4 | Dual M.2 Slot' },
-    { id: 205, category: 'mb', name: 'ROG STRIX Z790-F GAMING', price: 13900, img: 'https://img.advice.co.th/images_nas/pic_product4/A0157435/A0157435OK_BIG_1.jpg', desc: 'Premium Intel Z790 Motherboard | Wi-Fi 6E | RGB Aura Sync' },
-
-    // VGA (5)
-    { id: 301, category: 'vga', name: 'ASUS DUAL RTX 4060 8GB', price: 11500, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQry33F6wfnTnrEJmgzSuI3V5px0dvUGVE4jA&s', desc: '8GB GDDR6 | Dual Fan | Ray Tracing Gen 3' },
-    { id: 302, category: 'vga', name: 'MSI RTX 4060 Ti VENTUS', price: 14900, img: 'https://asset.msi.com/resize/image/global/product/product_1684388309f60246f6be0d4cac5d4beb1106192066.png62405b38c58fe0f07fcef2367d8a9ba1/1024.png', desc: '8GB GDDR6 | Triple Fan | Torx Fan 4.0' },
-    { id: 303, category: 'vga', name: 'GIGABYTE RTX 4070 SUPER', price: 23900, img: 'https://assets.nvidia.partners/images/png/A0157414OK_BIG_1.png', desc: '12GB GDDR6X | Windforce Cooling System' },
-    { id: 304, category: 'vga', name: 'GALAX RTX 4080 SUPER SG', price: 38900, img: 'https://ascenti.co.th/main/wp-content/uploads/2024/08/GALAX-RTX-4080-SUPER-SG-6.jpg', desc: '16GB GDDR6X | Extreme Performance | ARGB Fans' },
-    { id: 305, category: 'vga', name: 'ROG STRIX RTX 4090 24GB', price: 79900, img: 'https://dlcdnwebimgs.asus.com/gain/AB610E55-358F-4C89-AAAC-0C77D4FDF778', desc: '24GB GDDR6X | The World Strongest GPU' },
-
-    // RAM (5)
-    { id: 401, category: 'ram', name: 'KINGSTON FURY BEAST 16GB', price: 1850, img: 'https://www.jib.co.th/img_master/product/original/2023112815581963873_1.jpg', desc: '16GB (8GBx2) DDR4 3200MHz | Lifetime Warranty' },
-    { id: 402, category: 'ram', name: 'CORSAIR VENGEANCE RGB 32GB', price: 4500, img: 'https://www.jib.co.th/img_master/product/original/2023112316492363781_1.jpg', desc: '32GB (16GBx2) DDR5 6000MHz | Dynamic RGB' },
-    { id: 403, category: 'ram', name: 'G.SKILL TRIDENT Z5 32GB', price: 5200, img: 'https://down-th.img.susercontent.com/file/78f8078f105a1a15d4d87d1c2f5a82e1', desc: '32GB (16GBx2) DDR5 6400MHz | Extreme Overclocking' },
-    { id: 404, category: 'ram', name: 'TEAMGROUP ELITE PLUS 8GB', price: 850, img: 'https://img.lazcdn.com/g/p/a19bd8363c63ca542feee879befe5ec3.jpg_960x960q80.jpg_.webp', desc: '8GB DDR4 3200MHz | Budget Choice' },
-    { id: 405, category: 'ram', name: 'THERMALTAKE TOUGHRAM 16GB', price: 2400, img: 'https://www.jib.co.th/img_master/product/original/2020052511240139586_1.png', desc: '16GB (8GBx2) DDR4 3600MHz | High Performance' },
-
-    // SSD (5)
-    { id: 501, category: 'ssd', name: 'WD BLACK SN850X 1TB', price: 3990, img: 'https://www.jib.co.th/img_master/product/original/2022102516290155937_1.jpg', desc: '1TB M.2 NVMe Gen 4 | Speed up to 7,300 MB/s' },
-    { id: 502, category: 'ssd', name: 'SAMSUNG 980 PRO 500GB', price: 2800, img: 'https://images.samsung.com/is/image/samsung/p6pim/th/mz-v8v500bw/gallery/th-980-nvme-m2-ssd-mz-v8v500bw-395383563?$Q90_1248_936_F_PNG$', desc: '500GB M.2 NVMe Gen 4 | High Endurance' },
-    { id: 503, category: 'ssd', name: 'KINGSTON NV2 1TB NVMe', price: 2150, img: 'https://tecdale.com/cdn/shop/files/Kingston_SSD_SNV2S_1000G_1TB_NV2_M.2_2280_NVMe_PCIe_1_skajng.jpg?v=1698676488&width=750', desc: '1TB M.2 NVMe Gen 4 | Best Value' },
-    { id: 504, category: 'ssd', name: 'CRUCIAL P3 PLUS 2TB', price: 4900, img: 'https://themark.com.co/wp-content/uploads/2024/09/13206.png', desc: '2TB M.2 NVMe Gen 4 | Huge Storage' },
-    { id: 505, category: 'ssd', name: 'HIKSEMI FUTURE 1TB', price: 2590, img: 'https://ascenti.co.th/main/wp-content/uploads/2023/03/HIKSEMI-FUTURE-2.jpg', desc: '1TB M.2 NVMe Gen 4 | Fast and Reliable' },
-
-    // PSU (5)
-    { id: 601, category: 'psu', name: 'COOLER MASTER G650W', price: 2150, img: 'https://c1.neweggimages.com/NeweggImage/productimage/17-171-097-04.jpg', desc: '650W 80+ Gold | High Efficiency' },
-    { id: 602, category: 'psu', name: 'CORSAIR RM850e 850W', price: 4690, img: 'https://ascenti.co.th/main/wp-content/uploads/2024/10/Corsair-RM850e-1-565x565.jpg', desc: '850W 80+ Gold | Fully Modular | Low Noise' },
-    { id: 603, category: 'psu', name: 'THERMALTAKE TOUGHPOWER 750W', price: 3400, img: 'https://th.thermaltake.com/media/catalog/product/cache/cc8b24283b13da6bc2ff91682c03b54b/db/imgs/pdt/angle/PS-TPD-0750MPCG_9b0466d7e7a24e438caab72bde7df719.jpg', desc: '750W 80+ Gold | Semi-Modular' },
-    { id: 604, category: 'psu', name: 'SILVERSTONE ET550 550W', price: 1550, img: 'https://www.silverstonetek.com/upload/images/products/et550-b/et550-b-package-3.jpg', desc: '550W 80+ Bronze | Reliable and Stable' },
-    { id: 605, category: 'psu', name: 'ROG THOR 1000W PLATINUM', price: 12500, img: 'https://dlcdnwebimgs.asus.com/gain/12B5E864-4EC7-4FDD-88F5-ED65E4635E4A', desc: '1000W 80+ Platinum | OLED Display | Aura Sync' },
-
-    // CASE (5)
-    { id: 701, category: 'case', name: 'MONTECH SKY TWO BLACK', price: 2490, img: 'https://ascenti.co.th/main/wp-content/uploads/2025/05/MONTECH-SKY-TWO-GX-Black-2.jpg', desc: 'ATX Case | Tempered Glass | 4 ARGB Fans Included' },
-    { id: 702, category: 'case', name: 'NZXT H6 FLOW WHITE', price: 3900, img: 'https://ascenti.co.th/main/wp-content/uploads/2024/08/NZXT-H6-Flow-RGB-White-17.jpg', desc: 'Panoramic Glass Case | Dual Chamber | Excellent Cooling' },
-    { id: 703, category: 'case', name: 'LIAN LI O11 DYNAMIC EVO', price: 5900, img: 'https://lian-li.com/wp-content/uploads/2021/12/o11d_evo-006.jpg', desc: 'Iconic Design | Highly Customizable | Premium Build' },
-    { id: 704, category: 'case', name: 'COOLER MASTER TD500 MESH V2', price: 2900, img: 'https://a.storyblok.com/f/281110/1280x1280/ba82b1989a/td500-mesh-v2-black.png', desc: 'Fine Mesh Performance | Polygonal Design' },
-    { id: 705, category: 'case', name: 'COOLER MASTER MASTERFRAME 360', price: 7990, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSH3NgK-fJJCQXvrPlhtYHZp0YKXhw8yFtUZw&s', desc: 'Open-Air Frame Case | Perfect for Showcasing Hardware' }
-];
-        let db = JSON.parse(localStorage.getItem('pc_db'));
-        if(!db) { db = defaultItems; localStorage.setItem('pc_db', JSON.stringify(db)); }
-
-        function login() {
-            if(document.getElementById('pw').value === '1234') {
-                document.getElementById('l-sec').style.display = 'none';
-                document.getElementById('p-sec').style.display = 'block';
-                render();
-            } else { document.getElementById('login-err').style.display = 'block'; }
+        // ฟังก์ชัน Login พร้อมแจ้งเตือนรหัสผิด
+        function checkLogin() {
+            const pw = document.getElementById('pw-input').value;
+            const errBox = document.getElementById('login-err');
+            
+            if(pw === '1234') {
+                document.getElementById('login-sec').style.display = 'none';
+                document.getElementById('admin-sec').style.display = 'block';
+                renderAdmin();
+            } else {
+                errBox.style.display = 'block'; // แสดงแจ้งเตือน
+                document.getElementById('pw-input').value = '';
+                setTimeout(() => { errBox.style.display = 'none'; }, 3000); // ซ่อนหลังจาก 3 วิ
+            }
         }
 
-        function render() {
+        function renderAdmin() {
             document.getElementById('count').innerText = db.length;
-            document.getElementById('list').innerHTML = db.map((p, i) => `
+            document.getElementById('list-render').innerHTML = db.map((p, i) => `
                 <div style="display:flex; align-items:center; background:rgba(0,0,0,0.3); padding:10px; margin-bottom:10px; border-radius:12px;">
-                    <img src="${p.img}" style="width:40px; height:40px; margin-right:15px; background:white; border-radius:5px;">
-                    <div style="flex:1;"><b>${p.name}</b><br>฿${p.price.toLocaleString()}</div>
-                    <button onclick="askDel(${i})" style="color:var(--red); background:none; border:none; cursor:pointer;">ลบ</button>
-                </div>`).join('');
+                    <img src="${p.img}" style="width:40px; height:40px; margin-right:15px; background:white; border-radius:5px; object-fit:contain;">
+                    <div style="flex:1;"><b>${p.name}</b><br><small style="color:var(--main)">${p.category || p.cat}</small></div>
+                    <button onclick="askDelete(${i})" style="color:var(--red); background:none; border:none; cursor:pointer; font-weight:bold;">ลบ</button>
+                </div>
+            `).join('');
+            document.getElementById('mq-input').value = localStorage.getItem('mq_txt') || "⚡ ยินดีต้อนรับสู่ ININE-CPU ⚡";
         }
 
-        function add() {
+        function addItem() {
             let n = document.getElementById('n-name').value, p = document.getElementById('n-price').value, c = document.getElementById('n-cat').value, i = document.getElementById('n-img').value;
-            if(!n || !p || !i) return;
-            db.unshift({id: Date.now(), cat: c, name: n, price: parseInt(p), img: i});
+            if(!n || !p || !i) return alert('กรุณาใส่ข้อมูลให้ครบ');
+            db.unshift({id: Date.now(), category: c, name: n, price: parseInt(p), img: i});
             localStorage.setItem('pc_db', JSON.stringify(db));
-            render();
+            renderAdmin();
+            document.getElementById('n-name').value = ''; document.getElementById('n-price').value = ''; document.getElementById('n-img').value = '';
         }
 
-        let delIdx = null;
-        function askDel(i) { delIdx = i; document.getElementById('confirm-overlay').style.display = 'flex'; }
+        // ระบบลบสินค้าแบบ Inline Modal
+        function askDelete(i) { delIndex = i; document.getElementById('confirm-overlay').style.display = 'flex'; }
+        function closeModal() { document.getElementById('confirm-overlay').style.display = 'none'; }
+        
         document.getElementById('confirm-del-btn').onclick = function() {
-            db.splice(delIdx, 1);
+            db.splice(delIndex, 1);
             localStorage.setItem('pc_db', JSON.stringify(db));
-            render();
-            document.getElementById('confirm-overlay').style.display = 'none';
+            renderAdmin();
+            closeModal();
+        };
+
+        function saveMQ() {
+            localStorage.setItem('mq_txt', document.getElementById('mq-input').value);
+            alert('บันทึกประกาศสำเร็จ!');
         }
     </script>
 </body>
