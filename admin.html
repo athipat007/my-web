@@ -2,80 +2,74 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Login | ININE-CPU</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบหลังบ้าน | ININE-CPU</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { --main: #8a2be2; --red: #ff4757; --green: #2ecc71; --dark: #0f172a; }
         body { background: var(--dark); color: white; font-family: 'Kanit', sans-serif; margin: 0; }
         
-        /* Modal ยืนยันการลบสินค้า */
-        #confirm-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; }
-        .confirm-box { background: #1e293b; padding: 30px; border-radius: 20px; text-align: center; max-width: 320px; border: 1px solid rgba(255,255,255,0.1); }
+        /* แจ้งเตือนรหัสผิด (Inline) */
+        #login-err { display: none; background: rgba(255,71,87,0.2); color: var(--red); border: 1px solid var(--red); padding: 12px; border-radius: 12px; margin-bottom: 15px; font-size: 14px; }
 
-        /* หน้า Login */
-        #login-container { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        #login-box { background: #1e293b; padding: 40px; border-radius: 24px; width: 100%; max-width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; }
-        
-        /* แจ้งเตือนรหัสผิด */
-        #login-err { display: none; background: rgba(255, 71, 87, 0.2); color: var(--red); border: 1px solid var(--red); padding: 10px; border-radius: 10px; margin-bottom: 15px; font-weight: bold; }
+        /* Modal ยืนยันการลบ */
+        #confirm-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 2000; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+        .confirm-box { background: #1e293b; padding: 30px; border-radius: 24px; text-align: center; width: 100%; max-width: 350px; }
 
-        header { background: #000; padding: 15px 50px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--main); }
-        .logo { font-size: 24px; font-weight: bold; text-decoration: none; color: white; }
-        .logo span { color: var(--main); }
+        /* การจัดวางหน้าจอ (Responsive) */
+        header { background: #000; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--main); }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         
-        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; display: grid; grid-template-columns: 350px 1fr; gap: 30px; }
-        .card { background: rgba(255,255,255,0.05); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
-        
-        input, select, textarea { background: #000; border: 1px solid #444; color: white; padding: 12px; border-radius: 10px; width: 100%; margin-bottom: 15px; box-sizing: border-box; font-family: 'Kanit'; }
+        @media (max-width: 768px) {
+            .container { grid-template-columns: 1fr; } /* มือถือจะเรียงเป็นคอลัมน์เดียว */
+            header { padding: 15px 20px; }
+        }
+
+        .card { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        input, select, textarea { background: #000; border: 1px solid #334155; color: white; padding: 12px; border-radius: 12px; width: 100%; margin-bottom: 15px; box-sizing: border-box; font-family: 'Kanit'; }
         .btn { padding: 12px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; font-family: 'Kanit'; transition: 0.3s; }
         .btn-main { background: var(--main); color: white; }
+
+        #login-sec { height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        #login-box { background: #1e293b; padding: 40px; border-radius: 24px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
 
     <div id="confirm-overlay">
         <div class="confirm-box">
-            <h3>ลบสินค้าชิ้นนี้?</h3>
-            <p style="color:#94a3b8;">ข้อมูลจะถูกลบออกจากคลังถาวร</p>
+            <h3>ลบสินค้านี้?</h3>
+            <p style="color:#94a3b8">คุณจะไม่สามารถย้อนคืนข้อมูลนี้ได้</p>
             <div style="display:flex; gap:10px; margin-top:20px;">
-                <button class="btn" style="background:#475569; color:white;" onclick="closeModal()">ยกเลิก</button>
+                <button class="btn" style="background:#444; color:white;" onclick="closeModal()">ยกเลิก</button>
                 <button class="btn" id="confirm-del-btn" style="background:var(--red); color:white;">ยืนยันลบ</button>
             </div>
         </div>
     </div>
 
     <div id="login-sec">
-        <div id="login-container">
-            <div id="login-box">
-                <h2 style="color:var(--main); margin-bottom:20px;">ADMIN LOGIN</h2>
-                
-                <div id="login-err">❌ รหัสผ่านไม่ถูกต้อง!</div>
-
-                <input type="password" id="pw-input" placeholder="กรอกรหัสผ่าน (1234)">
-                <button class="btn btn-main" onclick="checkLogin()">เข้าสู่ระบบ</button>
-                <div style="margin-top:20px;">
-                    <a href="index.html" style="color:#94a3b8; text-decoration:none; font-size:14px;">🏠 กลับหน้าหลัก</a>
-                </div>
-            </div>
+        <div id="login-box">
+            <h2 style="color:var(--main)">ADMIN LOGIN</h2>
+            <div id="login-err">❌ รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่</div>
+            <input type="password" id="pw" placeholder="รหัสผ่าน (1234)">
+            <button class="btn btn-main" onclick="checkLogin()">เข้าสู่ระบบ</button>
+            <p><a href="index.html" style="color:#64748b; text-decoration:none; font-size:14px;">🏠 กลับสู่หน้าหลัก</a></p>
         </div>
     </div>
 
     <div id="admin-sec" style="display:none;">
         <header>
-            <a href="index.html" class="logo">ININE-<span>CPU</span></a>
-            <div style="display:flex; gap:20px; align-items:center;">
-                <a href="index.html" style="color:#ccc; text-decoration:none;">🏠 หน้าแรก</a>
-                <button onclick="location.reload()" style="background:var(--red); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer;">Logout</button>
-            </div>
+            <a href="index.html" style="color:white; text-decoration:none; font-weight:bold; font-size:20px;">ININE-<span style="color:var(--main)">CPU</span></a>
+            <button onclick="location.reload()" style="background:var(--red); color:white; border:none; padding:8px 15px; border-radius:10px; cursor:pointer;">Logout</button>
         </header>
 
         <div class="container">
             <div class="card">
-                <h3>📢 ประกาศหน้าเว็บ</h3>
-                <textarea id="mq-input" rows="2" placeholder="ใส่ข้อความประกาศ..."></textarea>
-                <button class="btn btn-main" onclick="saveMQ()" style="margin-bottom:30px;">บันทึกประกาศ</button>
+                <h3>📢 ข้อความวิ่ง</h3>
+                <textarea id="mq-input" rows="2"></textarea>
+                <button class="btn btn-main" onclick="saveMQ()" style="margin-bottom:20px;">อัปเดตข้อความ</button>
 
-                <h3>➕ เพิ่มสินค้าใหม่</h3>
+                <h3>➕ เพิ่มสินค้า</h3>
                 <select id="n-cat">
                     <option value="cpu">CPU</option><option value="mb">Mainboard</option>
                     <option value="vga">VGA</option><option value="ram">RAM</option>
@@ -85,11 +79,11 @@
                 <input type="text" id="n-name" placeholder="ชื่อสินค้า">
                 <input type="number" id="n-price" placeholder="ราคา">
                 <input type="text" id="n-img" placeholder="ลิงก์รูปภาพ">
-                <button class="btn btn-main" style="background:var(--green);" onclick="addItem()">เพิ่มเข้าคลัง</button>
+                <button class="btn btn-main" style="background:var(--green)" onclick="add()">บันทึกข้อมูล</button>
             </div>
 
             <div class="card">
-                <h3>📦 สินค้าในระบบ (<span id="count">0</span>)</h3>
+                <h3>📦 รายการสินค้า (<span id="count">0</span>)</h3>
                 <div id="list-render"></div>
             </div>
         </div>
@@ -97,59 +91,55 @@
 
     <script>
         let db = JSON.parse(localStorage.getItem('pc_db')) || [];
-        let delIndex = null;
+        let delIdx = null;
 
-        // ฟังก์ชัน Login พร้อมแจ้งเตือนรหัสผิด
         function checkLogin() {
-            const pw = document.getElementById('pw-input').value;
-            const errBox = document.getElementById('login-err');
-            
-            if(pw === '1234') {
+            const pass = document.getElementById('pw').value;
+            if(pass === '1234') {
                 document.getElementById('login-sec').style.display = 'none';
                 document.getElementById('admin-sec').style.display = 'block';
-                renderAdmin();
+                render();
             } else {
-                errBox.style.display = 'block'; // แสดงแจ้งเตือน
-                document.getElementById('pw-input').value = '';
-                setTimeout(() => { errBox.style.display = 'none'; }, 3000); // ซ่อนหลังจาก 3 วิ
+                const err = document.getElementById('login-err');
+                err.style.display = 'block';
+                setTimeout(() => err.style.display = 'none', 3000);
+                document.getElementById('pw').value = '';
             }
         }
 
-        function renderAdmin() {
+        function render() {
             document.getElementById('count').innerText = db.length;
+            document.getElementById('mq-input').value = localStorage.getItem('mq_txt') || "⚡ จัดสเปกคอมพิวเตอร์ที่ ININE-CPU ⚡";
             document.getElementById('list-render').innerHTML = db.map((p, i) => `
-                <div style="display:flex; align-items:center; background:rgba(0,0,0,0.3); padding:10px; margin-bottom:10px; border-radius:12px;">
-                    <img src="${p.img}" style="width:40px; height:40px; margin-right:15px; background:white; border-radius:5px; object-fit:contain;">
-                    <div style="flex:1;"><b>${p.name}</b><br><small style="color:var(--main)">${p.category || p.cat}</small></div>
-                    <button onclick="askDelete(${i})" style="color:var(--red); background:none; border:none; cursor:pointer; font-weight:bold;">ลบ</button>
+                <div style="display:flex; align-items:center; background:rgba(0,0,0,0.2); padding:10px; border-radius:12px; margin-bottom:10px;">
+                    <img src="${p.img}" style="width:40px; height:40px; border-radius:5px; margin-right:15px; background:#fff;">
+                    <div style="flex:1; font-size:14px;"><b>${p.name}</b><br>฿${p.price.toLocaleString()}</div>
+                    <button onclick="askDel(${i})" style="color:var(--red); background:none; border:none; cursor:pointer;">ลบ</button>
                 </div>
             `).join('');
-            document.getElementById('mq-input').value = localStorage.getItem('mq_txt') || "⚡ ยินดีต้อนรับสู่ ININE-CPU ⚡";
         }
 
-        function addItem() {
+        function add() {
             let n = document.getElementById('n-name').value, p = document.getElementById('n-price').value, c = document.getElementById('n-cat').value, i = document.getElementById('n-img').value;
-            if(!n || !p || !i) return alert('กรุณาใส่ข้อมูลให้ครบ');
+            if(!n || !p || !i) return alert('กรุณากรอกให้ครบ');
             db.unshift({id: Date.now(), category: c, name: n, price: parseInt(p), img: i});
             localStorage.setItem('pc_db', JSON.stringify(db));
-            renderAdmin();
+            render();
             document.getElementById('n-name').value = ''; document.getElementById('n-price').value = ''; document.getElementById('n-img').value = '';
         }
 
-        // ระบบลบสินค้าแบบ Inline Modal
-        function askDelete(i) { delIndex = i; document.getElementById('confirm-overlay').style.display = 'flex'; }
+        function askDel(i) { delIdx = i; document.getElementById('confirm-overlay').style.display = 'flex'; }
         function closeModal() { document.getElementById('confirm-overlay').style.display = 'none'; }
-        
         document.getElementById('confirm-del-btn').onclick = function() {
-            db.splice(delIndex, 1);
+            db.splice(delIdx, 1);
             localStorage.setItem('pc_db', JSON.stringify(db));
-            renderAdmin();
+            render();
             closeModal();
-        };
+        }
 
         function saveMQ() {
             localStorage.setItem('mq_txt', document.getElementById('mq-input').value);
-            alert('บันทึกประกาศสำเร็จ!');
+            alert('อัปเดตเรียบร้อย');
         }
     </script>
 </body>
