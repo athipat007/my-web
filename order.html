@@ -2,115 +2,169 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>จัดสเปกคอมพิวเตอร์ | ININE-CPU</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --main: #8a2be2; --dark: #000; --bg: #f8fafc; --red: #ff4757; }
-        body { margin: 0; font-family: 'Kanit', sans-serif; background: var(--bg); }
+        :root { --main: #8a2be2; --dark: #000; --red: #ff4757; }
+        body { margin: 0; font-family: 'Kanit', sans-serif; background: #f4f4f4; }
         
-        /* สไตล์มือถือ (Mobile First) */
-        nav { background: var(--dark); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; color: white; border-bottom: 2px solid var(--main); position: sticky; top: 0; z-index: 1000; }
-        .logo { font-weight: bold; font-size: 20px; text-decoration: none; color: white; }
-        
-        .marquee { background: var(--main); color: white; padding: 8px 0; overflow: hidden; font-size: 14px; }
-        .marquee-inner { display: inline-block; white-space: nowrap; animation: scroll 20s linear infinite; }
-        @keyframes scroll { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
+        /* Modal ยืนยันลบสเปก */
+        #confirm-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; }
+        .confirm-box { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 320px; }
 
-        .container { display: flex; flex-direction: column; gap: 20px; padding: 15px; max-width: 1400px; margin: 0 auto; }
-        
-        /* เมื่อแสดงผลบน PC */
-        @media (min-width: 1024px) {
-            .container { flex-direction: row; padding: 30px; }
-            .sidebar { width: 380px; position: sticky; top: 100px; height: fit-content; }
-            .main-content { flex: 1; }
-        }
+        .marquee { background: var(--main); color: white; padding: 10px 0; overflow: hidden; }
+        .marquee-txt { display: inline-block; white-space: nowrap; animation: move 20s linear infinite; font-weight: bold; }
+        @keyframes move { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
 
-        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        nav { background: var(--dark); padding: 15px 50px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--main); }
+        .logo { font-size: 24px; font-weight: bold; text-decoration: none; color: white; }
+        .logo span { color: var(--main); }
+
+        .container { display: grid; grid-template-columns: 380px 1fr; max-width: 1400px; margin: 30px auto; gap: 30px; padding: 0 20px; }
+        .sidebar { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); position: sticky; top: 20px; }
         
-        .build-item { display: flex; align-items: center; padding: 10px; border: 1.5px solid #eee; border-radius: 12px; margin-bottom: 8px; cursor: pointer; transition: 0.2s; }
+        .build-item { display: flex; align-items: center; padding: 12px; border: 1.5px solid #eee; border-radius: 12px; margin-bottom: 10px; cursor: pointer; }
         .build-item.active { border-color: var(--main); background: #f3e8ff; }
-        .build-item img { width: 40px; height: 40px; margin-right: 12px; border-radius: 6px; object-fit: contain; }
+        .build-item img { width: 45px; height: 45px; margin-right: 15px; object-fit: contain; }
+        
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        .p-card { background: white; border-radius: 15px; padding: 20px; text-align: center; border: 1px solid #eee; }
+        .p-card img { width: 100%; height: 150px; object-fit: contain; }
 
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
-        .p-card { background: white; border-radius: 15px; padding: 15px; text-align: center; border: 1px solid #eee; transition: 0.3s; }
-        .p-card:hover { transform: translateY(-5px); border-color: var(--main); }
-        .p-card img { width: 100%; height: 120px; object-fit: contain; margin-bottom: 10px; }
-
-        .btn { border: none; padding: 12px; border-radius: 12px; font-family: 'Kanit'; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s; }
-        .btn-main { background: var(--main); color: white; }
+        .btn { padding: 12px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; width: 100%; font-family: 'Kanit'; }
+        .btn-main { background: var(--main); color: white; margin-top: 10px; }
         .btn-clear { background: #fee2e2; color: var(--red); margin-top: 10px; }
-
-        /* Modal ยืนยันล้างสเปก */
-        #clear-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
     </style>
 </head>
 <body>
 
-    <div id="clear-modal">
-        <div style="background:white; padding:30px; border-radius:24px; text-align:center; max-width:320px; width:100%;">
-            <h3>ล้างสเปกที่เลือก?</h3>
-            <p style="color:#666">รายการอุปกรณ์ทั้งหมดจะถูกลบออกจากรายการจัดสเปก</p>
+    <div id="confirm-overlay">
+        <div class="confirm-box">
+            <h3>ต้องการล้างสเปก?</h3>
+            <p>รายการที่คุณเลือกมาทั้งหมดจะถูกลบออก</p>
             <div style="display:flex; gap:10px; margin-top:20px;">
-                <button class="btn" style="background:#eee;" onclick="document.getElementById('clear-modal').style.display='none'">ยกเลิก</button>
-                <button class="btn" style="background:var(--red); color:white;" onclick="doClear()">ล้างข้อมูล</button>
+                <button class="btn" style="background:#eee;" onclick="this.parentElement.parentElement.parentElement.style.display='none'">ยกเลิก</button>
+                <button class="btn" style="background:var(--red); color:white;" onclick="clearBuild()">ล้างสเปก</button>
             </div>
         </div>
     </div>
 
+    <div class="marquee"><div class="marquee-txt" id="mq-view"></div></div>
+
     <nav>
-        <a href="index.html" class="logo">ININE-<span style="color:var(--main)">CPU</span></a>
-        <a href="index.html" style="color:#ccc; text-decoration:none; font-size:14px;">🏠 หน้าแรก</a>
+        <a href="index.html" class="logo">ININE-<span>CPU</span></a>
+        <a href="index.html" style="color:#ccc; text-decoration:none;">🏠 กลับหน้าแรก</a>
     </nav>
 
-    <div class="marquee"><div class="marquee-inner" id="mq-v"></div></div>
-
     <div class="container">
-        <div class="sidebar card">
-            <h1 id="total-v" style="text-align:center; color:var(--main); margin:0 0 20px 0;">฿ 0</h1>
-            <div id="build-v"></div>
-            <button class="btn btn-clear" onclick="document.getElementById('clear-modal').style.display='flex'">ล้างสเปกทั้งหมด</button>
-            <button class="btn btn-main" style="margin-top:15px; height:55px; font-size:18px;" onclick="location.href='checkout.html'">💳 ไปชำระเงิน</button>
-        </div>
+        <aside class="sidebar">
+            <h1 id="total" style="text-align:center; color:var(--main);">฿ 0</h1>
+            <div id="build-list"></div>
+            <button class="btn btn-clear" onclick="document.getElementById('confirm-overlay').style.display='flex'">ลบสเปกทั้งหมด</button>
+            <button class="btn btn-main" style="background:linear-gradient(45deg, #8a2be2, #4b0082); height:60px; font-size:18px;" onclick="location.href='checkout.html'">💳 ไปหน้าจ่ายเงิน</button>
+        </aside>
 
-        <div class="main-content">
-            <h2 id="cat-t" style="margin-top:0; border-left:5px solid var(--main); padding-left:15px;">CPU</h2>
-            <div id="grid-v" class="product-grid"></div>
-        </div>
+        <main>
+            <h2 id="cat-title" style="border-left:5px solid var(--main); padding-left:15px;">CPU</h2>
+            <div id="product-grid" class="product-grid"></div>
+        </main>
     </div>
 
     <script>
         const cats = [{id:'cpu',n:'CPU'},{id:'mb',n:'Mainboard'},{id:'vga',n:'VGA'},{id:'ram',n:'RAM'},{id:'ssd',n:'SSD'},{id:'psu',n:'PSU'},{id:'case',n:'Case'}];
-        let db = JSON.parse(localStorage.getItem('pc_db')) || [];
+        
+        // ข้อมูลเริ่มต้น (ตัวอย่างสินค้าที่คุณให้มา)
+        const defaultItems = [
+        // CPU (5)
+    { id: 101, category: 'cpu', name: 'Intel Core i5-13400F', price: 7200, img: 'https://www.jib.co.th/img_master/product/original/2022122610011856972_1.jpg', desc: '10 Cores (6P+4E) / 16 Threads | Max Turbo 4.6GHz' },
+    { id: 102, category: 'cpu', name: 'AMD Ryzen 5 7500F', price: 5990, img: 'https://www.jib.co.th/img_master/product/original/20240801150411_69543_66_1.jpg', desc: '6 Cores / 12 Threads | Base 3.7GHz / Boost 5.0GHz' },
+    { id: 103, category: 'cpu', name: 'Intel Core i7-14700K', price: 16500, img: 'https://www.jib.co.th/img_master/product/original/2023101615255663038_1.png', desc: '20 Cores (8P+12E) / 28 Threads | Max Turbo 5.6GHz' },
+    { id: 104, category: 'cpu', name: 'AMD Ryzen 7 7800X3D', price: 15500, img: 'https://ihcupload.s3.ap-southeast-1.amazonaws.com/img/product/products85319_800.jpg', desc: '8 Cores / 16 Threads | 3D V-Cache เทคโนโลยีที่แรงที่สุดสำหรับการเล่นเกม' },
+    { id: 105, category: 'cpu', name: 'Intel Core i9-14900K', price: 22900, img: 'https://www.jib.co.th/img_master/product/original/2023101615262063040_1.png', desc: '24 Cores (8P+16E) / 32 Threads | Max Turbo 6.0GHz' },
+
+    // MB (5)
+    { id: 201, category: 'mb', name: 'ASUS PRIME B760M-A', price: 4990, img: 'https://www.jib.co.th/img_master/product/original/2025052816324057137_1.jpg', desc: 'Intel B760 Chipset | LGA 1700 | DDR5 Support' },
+    { id: 202, category: 'mb', name: 'MSI MAG B650 TOMAHAWK', price: 7500, img: 'https://storage-asset.msi.com/global/picture/image/feature/mb/B650/MAG-B650-TOMAHAWK-WIFI/mag-b650-tomahawk-wifi-block01.png', desc: 'AMD B650 Chipset | AM5 | Wi-Fi 6E' },
+    { id: 203, category: 'mb', name: 'GIGABYTE Z790 AORUS ELITE', price: 9200, img: 'https://www.gigabyte.com/FileUpload/Global/KeyFeature/2203/innergigabyteimages/box.png', desc: 'Intel Z790 Chipset | LGA 1700 | PCIe 5.0 Support' },
+    { id: 204, category: 'mb', name: 'ASROCK B550M PRO4', price: 3100, img: 'https://www.asrock.com/mb/photo/B550M%20Pro4(M1).png', desc: 'AMD B550 Chipset | AM4 | Dual M.2 Slot' },
+    { id: 205, category: 'mb', name: 'ROG STRIX Z790-F GAMING', price: 13900, img: 'https://img.advice.co.th/images_nas/pic_product4/A0157435/A0157435OK_BIG_1.jpg', desc: 'Premium Intel Z790 Motherboard | Wi-Fi 6E | RGB Aura Sync' },
+
+    // VGA (5)
+    { id: 301, category: 'vga', name: 'ASUS DUAL RTX 4060 8GB', price: 11500, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQry33F6wfnTnrEJmgzSuI3V5px0dvUGVE4jA&s', desc: '8GB GDDR6 | Dual Fan | Ray Tracing Gen 3' },
+    { id: 302, category: 'vga', name: 'MSI RTX 4060 Ti VENTUS', price: 14900, img: 'https://asset.msi.com/resize/image/global/product/product_1684388309f60246f6be0d4cac5d4beb1106192066.png62405b38c58fe0f07fcef2367d8a9ba1/1024.png', desc: '8GB GDDR6 | Triple Fan | Torx Fan 4.0' },
+    { id: 303, category: 'vga', name: 'GIGABYTE RTX 4070 SUPER', price: 23900, img: 'https://assets.nvidia.partners/images/png/A0157414OK_BIG_1.png', desc: '12GB GDDR6X | Windforce Cooling System' },
+    { id: 304, category: 'vga', name: 'GALAX RTX 4080 SUPER SG', price: 38900, img: 'https://ascenti.co.th/main/wp-content/uploads/2024/08/GALAX-RTX-4080-SUPER-SG-6.jpg', desc: '16GB GDDR6X | Extreme Performance | ARGB Fans' },
+    { id: 305, category: 'vga', name: 'ROG STRIX RTX 4090 24GB', price: 79900, img: 'https://dlcdnwebimgs.asus.com/gain/AB610E55-358F-4C89-AAAC-0C77D4FDF778', desc: '24GB GDDR6X | The World Strongest GPU' },
+
+    // RAM (5)
+    { id: 401, category: 'ram', name: 'KINGSTON FURY BEAST 16GB', price: 1850, img: 'https://www.jib.co.th/img_master/product/original/2023112815581963873_1.jpg', desc: '16GB (8GBx2) DDR4 3200MHz | Lifetime Warranty' },
+    { id: 402, category: 'ram', name: 'CORSAIR VENGEANCE RGB 32GB', price: 4500, img: 'https://www.jib.co.th/img_master/product/original/2023112316492363781_1.jpg', desc: '32GB (16GBx2) DDR5 6000MHz | Dynamic RGB' },
+    { id: 403, category: 'ram', name: 'G.SKILL TRIDENT Z5 32GB', price: 5200, img: 'https://down-th.img.susercontent.com/file/78f8078f105a1a15d4d87d1c2f5a82e1', desc: '32GB (16GBx2) DDR5 6400MHz | Extreme Overclocking' },
+    { id: 404, category: 'ram', name: 'TEAMGROUP ELITE PLUS 8GB', price: 850, img: 'https://img.lazcdn.com/g/p/a19bd8363c63ca542feee879befe5ec3.jpg_960x960q80.jpg_.webp', desc: '8GB DDR4 3200MHz | Budget Choice' },
+    { id: 405, category: 'ram', name: 'THERMALTAKE TOUGHRAM 16GB', price: 2400, img: 'https://www.jib.co.th/img_master/product/original/2020052511240139586_1.png', desc: '16GB (8GBx2) DDR4 3600MHz | High Performance' },
+
+    // SSD (5)
+    { id: 501, category: 'ssd', name: 'WD BLACK SN850X 1TB', price: 3990, img: 'https://www.jib.co.th/img_master/product/original/2022102516290155937_1.jpg', desc: '1TB M.2 NVMe Gen 4 | Speed up to 7,300 MB/s' },
+    { id: 502, category: 'ssd', name: 'SAMSUNG 980 PRO 500GB', price: 2800, img: 'https://images.samsung.com/is/image/samsung/p6pim/th/mz-v8v500bw/gallery/th-980-nvme-m2-ssd-mz-v8v500bw-395383563?$Q90_1248_936_F_PNG$', desc: '500GB M.2 NVMe Gen 4 | High Endurance' },
+    { id: 503, category: 'ssd', name: 'KINGSTON NV2 1TB NVMe', price: 2150, img: 'https://tecdale.com/cdn/shop/files/Kingston_SSD_SNV2S_1000G_1TB_NV2_M.2_2280_NVMe_PCIe_1_skajng.jpg?v=1698676488&width=750', desc: '1TB M.2 NVMe Gen 4 | Best Value' },
+    { id: 504, category: 'ssd', name: 'CRUCIAL P3 PLUS 2TB', price: 4900, img: 'https://themark.com.co/wp-content/uploads/2024/09/13206.png', desc: '2TB M.2 NVMe Gen 4 | Huge Storage' },
+    { id: 505, category: 'ssd', name: 'HIKSEMI FUTURE 1TB', price: 2590, img: 'https://ascenti.co.th/main/wp-content/uploads/2023/03/HIKSEMI-FUTURE-2.jpg', desc: '1TB M.2 NVMe Gen 4 | Fast and Reliable' },
+
+    // PSU (5)
+    { id: 601, category: 'psu', name: 'COOLER MASTER G650W', price: 2150, img: 'https://c1.neweggimages.com/NeweggImage/productimage/17-171-097-04.jpg', desc: '650W 80+ Gold | High Efficiency' },
+    { id: 602, category: 'psu', name: 'CORSAIR RM850e 850W', price: 4690, img: 'https://ascenti.co.th/main/wp-content/uploads/2024/10/Corsair-RM850e-1-565x565.jpg', desc: '850W 80+ Gold | Fully Modular | Low Noise' },
+    { id: 603, category: 'psu', name: 'THERMALTAKE TOUGHPOWER 750W', price: 3400, img: 'https://th.thermaltake.com/media/catalog/product/cache/cc8b24283b13da6bc2ff91682c03b54b/db/imgs/pdt/angle/PS-TPD-0750MPCG_9b0466d7e7a24e438caab72bde7df719.jpg', desc: '750W 80+ Gold | Semi-Modular' },
+    { id: 604, category: 'psu', name: 'SILVERSTONE ET550 550W', price: 1550, img: 'https://www.silverstonetek.com/upload/images/products/et550-b/et550-b-package-3.jpg', desc: '550W 80+ Bronze | Reliable and Stable' },
+    { id: 605, category: 'psu', name: 'ROG THOR 1000W PLATINUM', price: 12500, img: 'https://dlcdnwebimgs.asus.com/gain/12B5E864-4EC7-4FDD-88F5-ED65E4635E4A', desc: '1000W 80+ Platinum | OLED Display | Aura Sync' },
+
+    // CASE (5)
+    { id: 701, category: 'case', name: 'MONTECH SKY TWO BLACK', price: 2490, img: 'https://ascenti.co.th/main/wp-content/uploads/2025/05/MONTECH-SKY-TWO-GX-Black-2.jpg', desc: 'ATX Case | Tempered Glass | 4 ARGB Fans Included' },
+    { id: 702, category: 'case', name: 'NZXT H6 FLOW WHITE', price: 3900, img: 'https://ascenti.co.th/main/wp-content/uploads/2024/08/NZXT-H6-Flow-RGB-White-17.jpg', desc: 'Panoramic Glass Case | Dual Chamber | Excellent Cooling' },
+    { id: 703, category: 'case', name: 'LIAN LI O11 DYNAMIC EVO', price: 5900, img: 'https://lian-li.com/wp-content/uploads/2021/12/o11d_evo-006.jpg', desc: 'Iconic Design | Highly Customizable | Premium Build' },
+    { id: 704, category: 'case', name: 'COOLER MASTER TD500 MESH V2', price: 2900, img: 'https://a.storyblok.com/f/281110/1280x1280/ba82b1989a/td500-mesh-v2-black.png', desc: 'Fine Mesh Performance | Polygonal Design' },
+    { id: 705, category: 'case', name: 'COOLER MASTER MASTERFRAME 360', price: 7990, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSH3NgK-fJJCQXvrPlhtYHZp0YKXhw8yFtUZw&s', desc: 'Open-Air Frame Case | Perfect for Showcasing Hardware' }
+];
+
+        let db = JSON.parse(localStorage.getItem('pc_db')) || defaultItems;
         let myBuild = JSON.parse(localStorage.getItem('my_build')) || {};
         let currentCat = 'cpu';
 
         function render() {
-            document.getElementById('mq-v').innerText = localStorage.getItem('mq_txt') || "⚡ ยินดีต้อนรับสู่ ININE-CPU ⚡";
+            document.getElementById('mq-view').innerText = localStorage.getItem('mq_txt') || "⚡ จัดสเปกคอมพิวเตอร์ที่ ININE-CPU ⚡";
             
-            document.getElementById('build-v').innerHTML = cats.map(c => `
+            document.getElementById('build-list').innerHTML = cats.map(c => `
                 <div class="build-item ${currentCat===c.id?'active':''}" onclick="setCat('${c.id}')">
-                    <img src="${myBuild[c.id]?myBuild[c.id].img:'https://via.placeholder.com/50?text=None'}">
-                    <div style="flex:1;"><small style="color:#888">${c.n}</small><br><b style="font-size:13px;">${myBuild[c.id]?myBuild[c.id].name:'ยังไม่เลือก'}</b></div>
+                    <img src="${myBuild[c.id]?myBuild[c.id].img:'https://via.placeholder.com/50'}">
+                    <div style="flex:1;"><small>${c.n}</small><br><b>${myBuild[c.id]?myBuild[c.id].name:'ยังไม่เลือก'}</b></div>
                 </div>`).join('');
 
-            const total = Object.values(myBuild).reduce((s,i)=>s+i.price, 0);
-            document.getElementById('total-v').innerText = '฿ ' + total.toLocaleString();
+            const total = Object.values(myBuild).reduce((s,i)=>s+i.price,0);
+            document.getElementById('total').innerText = '฿ ' + total.toLocaleString();
 
-            document.getElementById('cat-t').innerText = 'หมวดหมู่: ' + currentCat.toUpperCase();
+            document.getElementById('cat-title').innerText = 'เลือกอุปกรณ์: ' + currentCat.toUpperCase();
             const filtered = db.filter(p => p.category === currentCat);
-            document.getElementById('grid-v').innerHTML = filtered.length > 0 ? filtered.map(p => `
+            document.getElementById('product-grid').innerHTML = filtered.map(p => `
                 <div class="p-card">
                     <img src="${p.img}">
-                    <h4 style="font-size:14px; margin:10px 0;">${p.name}</h4>
-                    <p style="color:var(--main); font-weight:bold; margin:0 0 10px 0;">฿${p.price.toLocaleString()}</p>
-                    <button class="btn btn-main" onclick="pick(${p.id})">เลือก</button>
-                </div>`).join('') : '<p style="grid-column:1/-1; text-align:center; color:#888;">ไม่มีสินค้าในหมวดนี้</p>';
+                    <h4>${p.name}</h4>
+                    <p style="color:var(--main); font-weight:bold;">฿${p.price.toLocaleString()}</p>
+                    <button class="btn btn-main" onclick="select(${p.id})">เลือก</button>
+                </div>`).join('');
         }
 
         function setCat(c) { currentCat = c; render(); }
-        function pick(id) { myBuild[currentCat] = db.find(x=>x.id===id); localStorage.setItem('my_build', JSON.stringify(myBuild)); render(); }
-        function doClear() { myBuild = {}; localStorage.removeItem('my_build'); document.getElementById('clear-modal').style.display='none'; render(); }
+        function select(id) { 
+            myBuild[currentCat] = db.find(x=>x.id===id); 
+            localStorage.setItem('my_build', JSON.stringify(myBuild)); 
+            render(); 
+        }
+        function clearBuild() { 
+            myBuild = {}; 
+            localStorage.removeItem('my_build'); 
+            document.getElementById('confirm-overlay').style.display='none';
+            render(); 
+        }
+
         window.onload = render;
     </script>
 </body>
